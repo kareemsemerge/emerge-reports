@@ -16,138 +16,87 @@
 
 <div class="max-w-3xl mx-auto space-y-6">
 
-  <!-- Header -->
   <div>
     <h1 class="text-2xl font-bold text-white">Interactive HTML → Email</h1>
-    <p class="text-slate-400 text-sm mt-1">
-      Upload your interactive HTML, generate an Outlook-safe email, copy and send.
-    </p>
+    <p class="text-slate-400 text-sm mt-1">Upload your interactive HTML, generate an Outlook-safe email, copy and send.</p>
   </div>
 
-  <!-- Upload card -->
   <div class="card rounded-xl p-6 space-y-5">
-
-    <!-- Tabs -->
     <div class="flex gap-6 border-b border-slate-700 pb-0 text-sm font-medium">
-      <button id="tab-file" onclick="switchTab('file')"
-              class="pb-3 tab-active transition-colors">
-        Upload file
-      </button>
-      <button id="tab-paste" onclick="switchTab('paste')"
-              class="pb-3 text-slate-400 hover:text-white transition-colors">
-        Paste HTML
-      </button>
+      <button id="tab-file" onclick="switchTab('file')" class="pb-3 tab-active transition-colors">Upload file</button>
+      <button id="tab-paste" onclick="switchTab('paste')" class="pb-3 text-slate-400 hover:text-white transition-colors">Paste HTML</button>
     </div>
-
-    <!-- Label -->
     <div>
-      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-        Session label (shown in email subject)
-      </label>
+      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Session label</label>
       <input id="labelInput" type="text" placeholder="e.g. May 2026 Renewal Report"
-             class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5
-                    text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+             class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"/>
     </div>
-
-    <!-- File tab -->
     <div id="pane-file">
-      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-        HTML file
-      </label>
+      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">HTML file</label>
       <input id="fileInput" type="file" accept=".html,text/html"
-             class="w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4
-                    file:rounded-lg file:border-0 file:text-sm file:font-semibold
-                    file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"/>
+             class="w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"/>
     </div>
-
-    <!-- Paste tab -->
     <div id="pane-paste" class="hidden">
-      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-        Raw HTML
-      </label>
+      <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Raw HTML</label>
       <textarea id="pasteInput" rows="10" placeholder="Paste your full HTML here…"
-                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3
-                       text-sm text-slate-200 font-mono focus:outline-none focus:ring-2
-                       focus:ring-blue-500 resize-none"></textarea>
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-200 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
     </div>
-
-    <!-- Submit -->
     <button onclick="handleUpload()"
-            class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700
-                   text-white font-semibold py-3 rounded-lg transition-colors
-                   flex items-center justify-center gap-2">
+            class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
       <span id="btnText">Generate session &amp; email</span>
       <svg id="spinner" class="hidden w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
         <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/>
-        <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3"
-              stroke-linecap="round"/>
+        <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
       </svg>
     </button>
   </div>
 
-  <!-- Result card (hidden until upload) -->
   <div id="resultCard" class="card rounded-xl p-6 space-y-5 hidden">
-
-    <!-- Session URL -->
     <div>
-      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-        Session URL (what recipients see when they click)
-      </p>
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Session URL</p>
       <div class="flex items-center gap-3">
-        <input id="sessionUrlInput" readonly
-               class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5
-                      text-blue-400 text-sm font-mono focus:outline-none"/>
-        <button onclick="copySessionUrl()"
-                class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium
-                       transition-colors whitespace-nowrap">
-          Copy URL
-        </button>
+        <input id="sessionUrlInput" readonly class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-blue-400 text-sm font-mono focus:outline-none"/>
+        <button onclick="copySessionUrl()" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">Copy URL</button>
       </div>
     </div>
-
-    <!-- Email HTML preview / copy -->
     <div>
       <div class="flex items-center justify-between mb-2">
-        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-          Generated email HTML (paste into Outlook / your ESP)
-        </p>
-        <button onclick="copyEmailHtml()"
-                class="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-md
-                       font-medium transition-colors">
-          Copy HTML
-        </button>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Generated email HTML</p>
+        <button onclick="copyEmailHtml()" class="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-md font-medium transition-colors">Copy HTML</button>
       </div>
-      <pre id="emailPreview"
-           class="rounded-lg p-4 text-xs text-slate-300 overflow-auto max-h-80 font-mono
-                  leading-relaxed whitespace-pre-wrap"></pre>
+      <pre id="emailPreview" class="rounded-lg p-4 text-xs text-slate-300 overflow-auto max-h-80 font-mono leading-relaxed whitespace-pre-wrap"></pre>
     </div>
-
-    <!-- Visual preview -->
     <div>
-      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-        Email preview
-      </p>
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email preview</p>
       <div class="rounded-lg overflow-hidden border border-slate-700">
-        <iframe id="emailPreviewFrame"
-                class="w-full"
-                style="height:480px;background:#f4f4f4;"
-                sandbox="allow-same-origin"></iframe>
+        <iframe id="emailPreviewFrame" class="w-full" style="height:480px;background:#f4f4f4;" sandbox="allow-same-origin"></iframe>
       </div>
     </div>
-
   </div>
 
-  <!-- Sessions list -->
   <div class="card rounded-xl p-6">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">
-        Recent sessions
-      </h2>
-      <button onclick="loadSessions()"
-              class="text-xs text-blue-400 hover:text-blue-300">Refresh</button>
+      <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Recent sessions</h2>
+      <button onclick="loadSessions()" class="text-xs text-blue-400 hover:text-blue-300">Refresh</button>
     </div>
-    <div id="sessionsList" class="space-y-2 text-sm text-slate-400">
-      Loading…
+    <div id="sessionsList" class="space-y-2 text-sm text-slate-400">Loading…</div>
+  </div>
+
+  <div class="card rounded-xl p-6">
+    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">Live Chat Rooms</h2>
+    <button onclick="createChatRoom()"
+            class="w-full bg-green-600 hover:bg-green-500 text-white font-semibold py-3 rounded-lg transition-colors mb-4">
+      Create new chat room
+    </button>
+    <div id="chatResult" class="hidden space-y-3">
+      <p class="text-xs text-slate-400 uppercase tracking-wider">Your chat link</p>
+      <div class="flex items-center gap-3">
+        <input id="chatUrl" readonly
+               class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-green-400 text-sm font-mono focus:outline-none"/>
+        <button onclick="copyChatUrl()" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">Copy</button>
+        <a id="chatOpen" href="#" target="_blank"
+           class="px-4 py-2.5 bg-green-600 hover:bg-green-500 rounded-lg text-sm font-medium transition-colors whitespace-nowrap text-white">Open</a>
+      </div>
     </div>
   </div>
 
@@ -170,25 +119,19 @@ function switchTab(tab) {
 async function handleUpload() {
   const label = document.getElementById('labelInput').value.trim();
   setLoading(true);
-
   try {
     let data;
-
     if (currentTab === 'file') {
       const file = document.getElementById('fileInput').files[0];
       if (!file) { alert('Please select an HTML file.'); return; }
-
       const form = new FormData();
       form.append('htmlFile', file);
       form.append('label', label || file.name);
-
       const res = await fetch('/api/upload', { method: 'POST', body: form });
       data = await res.json();
-
     } else {
       const html = document.getElementById('pasteInput').value.trim();
       if (!html) { alert('Please paste your HTML.'); return; }
-
       const res = await fetch('/api/upload-raw', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -196,11 +139,9 @@ async function handleUpload() {
       });
       data = await res.json();
     }
-
     if (!data.ok) throw new Error(data.error);
     showResult(data);
     loadSessions();
-
   } catch (err) {
     alert('Error: ' + err.message);
   } finally {
@@ -212,26 +153,16 @@ function showResult({ sessionUrl, emailHtml }) {
   storedEmailHtml = emailHtml;
   document.getElementById('sessionUrlInput').value = sessionUrl;
   document.getElementById('emailPreview').textContent = emailHtml;
-
-  const frame = document.getElementById('emailPreviewFrame');
-  frame.srcdoc = emailHtml;
-
+  document.getElementById('emailPreviewFrame').srcdoc = emailHtml;
   document.getElementById('resultCard').classList.remove('hidden');
   document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
 }
 
-function copySessionUrl() {
-  navigator.clipboard.writeText(document.getElementById('sessionUrlInput').value);
-}
-
-function copyEmailHtml() {
-  navigator.clipboard.writeText(storedEmailHtml);
-}
+function copySessionUrl() { navigator.clipboard.writeText(document.getElementById('sessionUrlInput').value); }
+function copyEmailHtml() { navigator.clipboard.writeText(storedEmailHtml); }
 
 function setLoading(on) {
-  document.getElementById('btnText').textContent = on
-    ? 'Generating…'
-    : 'Generate session & email';
+  document.getElementById('btnText').textContent = on ? 'Generating…' : 'Generate session & email';
   document.getElementById('spinner').classList.toggle('hidden', !on);
 }
 
@@ -240,29 +171,32 @@ async function loadSessions() {
     const res = await fetch('/api/sessions');
     const { sessions } = await res.json();
     const el = document.getElementById('sessionsList');
-
-    if (!sessions.length) {
-      el.innerHTML = '<p class="text-slate-500 italic">No sessions yet.</p>';
-      return;
-    }
-
+    if (!sessions.length) { el.innerHTML = '<p class="text-slate-500 italic">No sessions yet.</p>'; return; }
     el.innerHTML = sessions.slice().reverse().map(s => `
       <div class="flex items-center gap-3 py-2 border-b border-slate-700/50 last:border-0">
         <div class="flex-1 min-w-0">
           <p class="text-slate-200 font-medium truncate">${s.label}</p>
           <p class="text-xs text-slate-500 mt-0.5 font-mono">${s.id}</p>
         </div>
-        <a href="/session/${s.id}" target="_blank"
-           class="text-xs text-blue-400 hover:text-blue-300 whitespace-nowrap">
-          Open ↗
-        </a>
+        <a href="/session/${s.id}" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 whitespace-nowrap">Open ↗</a>
       </div>
     `).join('');
   } catch {
-    document.getElementById('sessionsList').innerHTML =
-      '<p class="text-red-400 text-sm">Failed to load sessions.</p>';
+    document.getElementById('sessionsList').innerHTML = '<p class="text-red-400 text-sm">Failed to load sessions.</p>';
   }
 }
+
+async function createChatRoom() {
+  const res = await fetch('/api/chat/create', { method: 'POST' });
+  const data = await res.json();
+  if (data.ok) {
+    document.getElementById('chatUrl').value = data.url;
+    document.getElementById('chatOpen').href = data.url;
+    document.getElementById('chatResult').classList.remove('hidden');
+  }
+}
+
+function copyChatUrl() { navigator.clipboard.writeText(document.getElementById('chatUrl').value); }
 
 loadSessions();
 </script>
