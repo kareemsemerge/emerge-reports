@@ -98,7 +98,6 @@
     border-radius: 12px 12px 12px 2px;
   }
   .msg-time { font-size: 10px; color: #4a6080; margin-top: 3px; padding: 0 6px; }
-  .system-msg { text-align: center; font-size: 12px; color: #4a6080; padding: 0.25rem 0; }
   .empty-state {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -110,7 +109,6 @@
     border-left: 1px solid rgba(201,168,76,0.2);
     border-right: 1px solid rgba(201,168,76,0.2);
   }
-  .syncing { color: #c9a84c; }
   .input-bar {
     background: #1a2e45;
     border: 1px solid rgba(201,168,76,0.2);
@@ -161,7 +159,7 @@
     <div class="pulse"></div>
     <div class="chat-header-text">
       <h2>Emerge Live Chat</h2>
-      <p>Real-time · Anyone with this link can join</p>
+      <p>Auto-syncs every 3 seconds</p>
     </div>
   </div>
 
@@ -197,7 +195,8 @@
 <script>
 const roomId = window.location.pathname.split('/').pop();
 const BASE = window.location.origin;
-let myName = '';
+let lastCount = 0;
+let polling = null;
 
 document.getElementById('share-url').value = window.location.href;
 
@@ -218,12 +217,15 @@ function fmt(ts) {
 function renderMessages(messages) {
   const container = document.getElementById('messages');
   const empty = document.getElementById('empty');
-  myName = document.getElementById('username').value.trim();
+  const myName = document.getElementById('username').value.trim();
 
   if (!messages.length) { empty.style.display = 'flex'; return; }
   empty.style.display = 'none';
 
+  if (messages.length === lastCount) return;
+
   const atBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 60;
+  lastCount = messages.length;
 
   container.innerHTML = messages.map(m => {
     const mine = m.name === myName;
@@ -237,31 +239,24 @@ function renderMessages(messages) {
   if (atBottom) container.scrollTop = container.scrollHeight;
 }
 
-// Load existing messages
-async function loadMessages() {
+async function fetchMessages() {
   try {
     const r = await fetch(`${BASE}/api/chat/${roomId}/messages`);
     const d = await r.json();
-    if (d.ok) renderMessages(d.messages);
-  } catch(e) {}
+    if (d.ok) {
+      renderMessages(d.messages);
+      document.getElementById('sync').textContent = '● Live — syncs every 3s';
+    }
+  } catch(e) {
+    document.getElementById('sync').textContent = '⚠ Connection issue — retrying…';
+  }
 }
 
-// Real-time SSE stream
-function connectStream() {
-  const es = new EventSource(`${BASE}/api/chat/${roomId}/stream`);
-  es.onopen = () => document.getElementById('sync').textContent = '● Live';
-  es.onmessage = (e) => {
-    const data = JSON.parse(e.data);
-    if (data.type === 'message') loadMessages();
-  };
-  es.onerror = () => {
-    document.getElementById('sync').textContent = '⚠ Reconnecting…';
-    setTimeout(connectStream, 3000);
-    es.close();
-  };
+function startPolling() {
+  fetchMessages();
+  polling = setInterval(fetchMessages, 3000);
 }
 
-// Send message
 async function sendMessage() {
   const input = document.getElementById('msg-input');
   const text = input.value.trim();
@@ -277,6 +272,7 @@ async function sendMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, text })
     });
+    await fetchMessages();
   } catch(e) {
     document.getElementById('sync').textContent = '⚠ Send failed';
   } finally {
@@ -290,8 +286,7 @@ document.getElementById('msg-input').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 
-loadMessages();
-connectStream();
+startPolling();
 </script>
 </body>
 </html>
