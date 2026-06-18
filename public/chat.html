@@ -104,7 +104,7 @@
     color: #4a6080; font-size: 14px; text-align: center; gap: 0.5rem;
   }
   .sync-indicator {
-    font-size: 11px; color: #4a6080; text-align: center; padding: 4px;
+    font-size: 11px; color: #4ade9a; text-align: center; padding: 4px;
     background: #0d1b2a;
     border-left: 1px solid rgba(201,168,76,0.2);
     border-right: 1px solid rgba(201,168,76,0.2);
@@ -162,26 +162,21 @@
       <p>Auto-syncs every 3 seconds</p>
     </div>
   </div>
-
   <div class="name-bar">
     Your name:
     <input type="text" id="username" placeholder="Enter your name…" maxlength="20"/>
   </div>
-
   <div class="messages" id="messages">
     <div class="empty-state" id="empty">
       <p>No messages yet.<br>Be the first to say something.</p>
     </div>
   </div>
-
   <div class="sync-indicator" id="sync">Connecting…</div>
-
   <div class="share-bar">
     Share:
     <input class="share-url" id="share-url" readonly/>
     <button class="copy-btn" onclick="copyLink()">Copy link</button>
   </div>
-
   <div class="input-bar">
     <input class="msg-input" id="msg-input" placeholder="Type a message…" maxlength="500"/>
     <button class="send-btn" id="send-btn">
@@ -191,12 +186,11 @@
     </button>
   </div>
 </div>
-
 <script>
 const roomId = window.location.pathname.split('/').pop();
 const BASE = window.location.origin;
 let lastCount = 0;
-let polling = null;
+let consecutiveErrors = 0;
 
 document.getElementById('share-url').value = window.location.href;
 
@@ -241,20 +235,22 @@ function renderMessages(messages) {
 
 async function fetchMessages() {
   try {
-    const r = await fetch(`${BASE}/api/chat/${roomId}/messages`);
+    const r = await fetch(`${BASE}/api/chat/${roomId}/messages`, { cache: 'no-store' });
+    if (!r.ok) throw new Error('bad response');
     const d = await r.json();
     if (d.ok) {
       renderMessages(d.messages);
-      document.getElementById('sync').textContent = '● Live — syncs every 3s';
+      consecutiveErrors = 0;
+      document.getElementById('sync').textContent = '● Live';
+      document.getElementById('sync').style.color = '#4ade9a';
     }
   } catch(e) {
-    document.getElementById('sync').textContent = '⚠ Connection issue — retrying…';
+    consecutiveErrors++;
+    if (consecutiveErrors > 2) {
+      document.getElementById('sync').textContent = '⚠ Reconnecting…';
+      document.getElementById('sync').style.color = '#f59e0b';
+    }
   }
-}
-
-function startPolling() {
-  fetchMessages();
-  setInterval(fetchMessages, 3000);
 }
 
 async function sendMessage() {
@@ -267,14 +263,18 @@ async function sendMessage() {
   input.disabled = true;
 
   try {
-    await fetch(`${BASE}/api/chat/${roomId}/messages`, {
+    const r = await fetch(`${BASE}/api/chat/${roomId}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, text })
     });
+    if (!r.ok) throw new Error('send failed');
+    consecutiveErrors = 0;
     await fetchMessages();
   } catch(e) {
-    document.getElementById('sync').textContent = '⚠ Send failed';
+    document.getElementById('sync').textContent = '⚠ Send failed — will retry';
+    document.getElementById('sync').style.color = '#f59e0b';
+    setTimeout(fetchMessages, 1000);
   } finally {
     input.disabled = false;
     input.focus();
@@ -286,7 +286,8 @@ document.getElementById('msg-input').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 
-startPolling();
+fetchMessages();
+setInterval(fetchMessages, 3000);
 </script>
 </body>
 </html>
