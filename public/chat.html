@@ -254,7 +254,7 @@ async function fetchMessages() {
 
 function startPolling() {
   fetchMessages();
-  polling = setInterval(fetchMessages, 3000);
+  setInterval(fetchMessages, 3000);
 }
 
 async function sendMessage() {
